@@ -5,6 +5,7 @@ The Git repository root folder should contain 4 subfolders:
 - database
 - backend
 - frontend
+
 The manual deployment process:
 - clone/pull the Git repository to each virtual machine
 - Run scripts from the appropriate folder
