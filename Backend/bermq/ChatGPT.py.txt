@@ -1,0 +1,53 @@
+# Cassandra: Please write code that consumes a RabbitMQ queue, and sends an email based on the JSON content of the message including the email address, subject and body of the email to be sent.
+# ChatGPT: Here's an example of how you could consume a RabbitMQ queue and send an email based on the JSON content of the message, using the pika library to interact with RabbitMQ and smtplib to send emails:
+
+import pika
+import smtplib
+import json
+
+def send_email(receiver, subject, body):
+    sender = "sender@example.com"
+    password = "sender_email_password"
+    message = f"Subject: {subject}\n\n{body}"
+
+    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server.starttls()
+    server.login(sender, password)
+    server.sendmail(sender, receiver, message)
+    server.quit()
+
+def callback(ch, method, properties, body):
+    message = json.loads(body)
+    send_email(message['email'], message['subject'], message['body'])
+    ch.basic_ack(delivery_tag=method.delivery_tag)
+
+def consume_queue():
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost"))
+    channel = connection.channel()
+    channel.queue_declare(queue="email_queue")
+    channel.basic_consume(queue="email_queue", on_message_callback=callback)
+    channel.start_consuming()
+
+if __name__ == "__main__":
+    consume_queue()
+
+# ChatGPT: This code assumes you have a RabbitMQ server running locally (host="localhost"), and that you have a queue named email_queue. The callback function is called for each message in the queue and it retrieves the email information from the JSON payload of the message. The send_email function uses the smtplib library to send an email to the address specified in the message. The consume_queue function sets up a connection to the RabbitMQ server and starts consuming messages from the email_queue.
+
+# Cassandra: Please write Python code that sends a message to `email_queue` to send an email.
+# ChatGPT: Here's an example of how you can send a message to the email_queue in RabbitMQ, which can later be consumed by a consumer to send an email:
+
+import pika
+import json
+
+def send_message(email, subject, body):
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost"))
+    channel = connection.channel()
+    channel.queue_declare(queue="email_queue")
+    message = json.dumps({"email": email, "subject": subject, "body": body})
+    channel.basic_publish(exchange="", routing_key="email_queue", body=message)
+    connection.close()
+
+if __name__ == "__main__":
+    send_message("receiver@example.com", "Test Email", "This is a test email sent from RabbitMQ.")
+
+# ChatGPT: This code assumes you have a RabbitMQ server running locally (host="localhost"), and that you have a queue named email_queue. The send_message function sets up a connection to the RabbitMQ server and sends a message to the email_queue containing the email information in the JSON payload of the message. When a consumer consumes the message from the email_queue, it can use the email information to send an email.
