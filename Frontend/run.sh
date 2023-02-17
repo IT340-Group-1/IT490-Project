@@ -1,1 +1,1 @@
-flask --app craui --debug run
+flask --app craui --debug run --port 7007

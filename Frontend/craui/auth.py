@@ -5,7 +5,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from . import rmq
+from . import fermq
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -24,10 +24,11 @@ def register():
             error = 'Password is required.'
 
         if error is None:
-            if rmq.is_registered(email):
+            if fermq.get_password_hash(email):
                 error = f"Email {email} is already registered."
             else:
-                rmq.register_email(email, generate_password_hash(password))
+                fermq.register_email(email, generate_password_hash(password))
+                fermq.send_email(email, "Welcome to CRA", "Currency Ratio Alerter is AWESOME!")
                 return redirect(url_for("auth.login"))
 
         flash(error)
@@ -43,8 +44,8 @@ def login():
 
         error = None
 
-        password_hash = rmq.get_password_hash(email)
-        if password_hash is None:
+        password_hash = fermq.get_password_hash(email).decode()
+        if password_hash is '':
             error = 'Incorrect email.'
         elif not check_password_hash(password_hash, password):
             error = 'Incorrect password.'

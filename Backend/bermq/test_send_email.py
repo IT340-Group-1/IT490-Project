@@ -18,4 +18,4 @@ def send_message(email, subject, body):
     connection.close()
 
 if __name__ == "__main__":
-    send_message("cns27@njit.edu", "Test Email", "This is a test email sent from RabbitMQ.")
+    send_message("cns27@njit.edu", "Test Email", "This is a test email sent from RabbitMQ. pls work")
