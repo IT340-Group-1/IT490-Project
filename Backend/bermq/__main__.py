@@ -16,6 +16,7 @@ rmq_connection = pika.BlockingConnection(
     pika.ConnectionParameters(host=rmq_host, port=rmq_port,
     credentials=rmq_credentials,
     ssl_options=ssl_options))
+
 channel = rmq_connection.channel()
 channel.basic_qos(prefetch_count=1)
 
