@@ -66,6 +66,8 @@
 	- In the terminal, change to `messaging`,  `database`, `frontend` or `backend` folder, and execute  
 	  `source ./aws_provision.sh`  
 	- Commit and push the `ip.txt` file, so that the script that will start all services can connect to all of these servers  
+	- In the case of messaging server `aws_provision.sh` will also write `rmq_url.py` files to the code for the other 3 servers. These files also need to be commited and pushed, and then pulled to the other 3 servers before executing `run.sh` scripts  
+	- The `db`, `be` and `fe` users also need to be created using RabbitMQ web console. Later, we should script this as well using `rabbitmqadmin` (https://www.rabbitmq.com/management-cli.html)
 	-  
 - SSH into database, frontend or backend servers  
 	- In the terminal, change to `database`, `frontend` or `backend` folder, and execute  
