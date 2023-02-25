@@ -66,8 +66,9 @@
 	- In the terminal, change to `messaging`,  `database`, `frontend` or `backend` folder, and execute  
 	  `source ./aws_provision.sh`  
 	- Commit and push the `ip.txt` file, so that the script that will start all services can connect to all of these servers  
-	- In the case of messaging server `aws_provision.sh` will also write `rmq_url.py` files to the code for the other 3 servers. These files also need to be commited and pushed, and then pulled to the other 3 servers before executing `run.sh` scripts  
-	- The `db`, `be` and `fe` users also need to be created using RabbitMQ web console. Later, we should script this as well using `rabbitmqadmin` (https://www.rabbitmq.com/management-cli.html)
+	- In the case of messaging server `aws_provision.sh` will start RabbitMQ broker in Amazon MQ, but it can take 20 to 30 minutes before it is running. The next steps shouild not be performed until the AWS Management Console shows the broker running.  
+		- Then the `db`, `be` and `fe` users need to be created using RabbitMQ web console. Later, we should script this as well using `rabbitmqadmin` (https://www.rabbitmq.com/management-cli.html)  
+		- Then the `aws_rmq_endpoint.sh` should be executed which will write `ip.txt` file (temporary), and also write `rmq_url.py` files to the code for the other 3 servers. This `ip.txt` file doesn't need to be commited and pushed, but the 3 `rmq_url.py` files need to be commited and pushed, and then pulled to the other 3 servers before executing `run.sh` scripts  
 	-  
 - SSH into database, frontend or backend servers  
 	- In the terminal, change to `database`, `frontend` or `backend` folder, and execute  
