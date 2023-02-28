@@ -1,1 +1,1 @@
-ssh -i "cra_ssh_key.pem" ubuntu@$(<ip.txt)
+ssh -i ~/.ssh/cra_ssh_key.pem ubuntu@$(<ip.txt)
