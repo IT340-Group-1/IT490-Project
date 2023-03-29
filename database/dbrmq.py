@@ -1,64 +1,67 @@
-import pika
-import ssl
 import mysql.connector
+import json
 from cradb import init_db
-from rmq_url import rmq_url
-
-rmq_host = rmq_url().split('//')[1].split(':')[0]
-rmq_port = 5671
-rmq_user = 'db'
-rmq_password = 'db_pa55w0rd$'
+from rmqrpc import listen
 
 db_host = 'localhost'
 db_user = 'craapp'
 db_password = 'password'
-
-context = ssl.create_default_context()
-ssl_options = pika.SSLOptions(context, rmq_host)
-rmq_credentials = pika.PlainCredentials(username=rmq_user, password=rmq_password)
-rmq_connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host=rmq_host, port=rmq_port,
-    credentials=rmq_credentials,
-    ssl_options=ssl_options))
-
-channel = rmq_connection.channel()
-channel.basic_qos(prefetch_count=1)
 
 cradb = mysql.connector.connect(
     host=db_host, user=db_user, password=db_password)
 
 init_db(cradb)
 
-# get_password_hash
-channel.queue_declare(queue='get_password_hash')
+def execute(db, sql, *args):
+    answer = "DONE"
+    if sql.lstrip()[:6].upper() == 'SELECT':
+        answer = []
+        with db.cursor() as cursor:
+            cursor.execute(sql, args)
+            column_names=[column[0] for column in cursor.description]
+            result = cursor.fetchall()
+            for row in result:
+                answer.append(dict(zip(column_names, row)))
+    else:
+        with db.cursor() as cursor:
+            cursor.execute(sql, args)
+            db.commit()
+    return answer
 
-def get_password_hash(ch, method, props, body):
-    answer = ''
-    sql = '''SELECT password_hash FROM users WHERE email = %s'''
-    with cradb.cursor() as cursor:
-        cursor.execute(sql, [body])
-        result = cursor.fetchone()
-        if result:
-            answer = result[0]
-    ch.basic_publish(
-        exchange='',
-        routing_key=props.reply_to,
-        properties=pika.BasicProperties(correlation_id=props.correlation_id),
-        body=answer)
-    ch.basic_ack(delivery_tag=method.delivery_tag)
+def get_user(r):
+    sql = '''SELECT username, email, password_hash FROM users WHERE username = %s'''
+    return execute(cradb, sql, r['username'])
 
-channel.basic_consume(queue='get_password_hash', on_message_callback=get_password_hash)
+def get_users(r):
+    sql = '''SELECT username, email FROM users'''
+    return execute(cradb, sql)
 
-# register_email
-channel.queue_declare(queue='register_email', durable=True)
+def register_user(r):
+    sql = '''INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s)'''
+    return execute(cradb, sql, r['username'], r['email'], r['password_hash'])
 
-def register_email(ch, method, props, body):
-    sql = '''INSERT INTO users (email, password_hash) VALUES (%s, %s)'''
-    with cradb.cursor() as cursor:
-        cursor.execute(sql, body.split())
-        cradb.commit()
-    ch.basic_ack(delivery_tag=method.delivery_tag)
+def get_alerts(r):
+    sql = '''SELECT users.email, alerts.username, numerator, denominator, threshold, last
+        FROM alerts
+        INNER JOIN users ON alerts.username = users.username
+        WHERE alerts.username = %s'''
+    return execute(cradb, sql, r['username'])
 
-channel.basic_consume(queue='register_email', on_message_callback=register_email)
+def set_alert(r):
+    sql = '''REPLACE INTO alerts (username, numerator, denominator, threshold)
+        VALUES (%s, %s, %s, CONVERT(%s, DECIMAL(12,6)))'''
+    return execute(cradb, sql, r['username'], r['numerator'], r['denominator'], r['threshold'])
 
-channel.start_consuming()
+def update_alert(r):
+    sql = '''UPDATE alerts SET last = CONVERT(%s, DECIMAL(12,6))
+        WHERE username = %s AND numerator = %s AND denominator = %s AND threshold = CONVERT(%s, DECIMAL(12,6))'''
+    return execute(cradb, sql, r['last'], r['username'], r['numerator'], r['denominator'], r['threshold'])
+
+def delete_alert(r):
+    sql = '''DELETE FROM alerts
+        WHERE username = %s AND numerator = %s AND denominator = %s AND
+        threshold = CONVERT(%s, DECIMAL(12,6))'''
+    return execute(cradb, sql, r['username'], r['numerator'], r['denominator'], r['threshold'])
+
+listen(get_user, get_users, register_user,
+       get_alerts, set_alert, update_alert, delete_alert)

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block header %}
+  <h1>{% block title %}Alerts{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  {% set currencies = ['USD', 'EUR', 'GBP', 'BTC', 'BAM', 'INR', 'AUD'] %}
+  <form action="{{ url_for('alerts.set_a') }}" method="post">
+    <label for="numerator">Numerator Currency</label>
+    <select name="numerator" id="numerator">
+      {% for cur in currencies %}
+        <option value="{{ cur }}">{{ cur }}</option>
+      {% endfor %}
+    </select>
+    <label for="denominator">Denominator Currency</label>
+    <select name="denominator" id="denominator">
+      {% for cur in currencies %}
+        <option value="{{ cur }}">{{ cur }}</option>
+      {% endfor %}
+    </select>
+    <label for="threshold">Threshold</label>
+    <input name="threshold" id="threshold" type="number" step="0.000001" min="0" max="999999.999999" required>
+    <input type="submit" value="Save">
+  </form>
+  <table>
+    <tr>
+      <th>Numerator Currency</th>
+      <th>Denominator Currency</th>
+      <th>threshold</th>
+      <th></th>
+    </tr>
+    {% for alert in alerts %}
+    <tr>
+      <td>{{ alert['numerator'] }}</td>
+      <td>{{ alert['denominator'] }}</td>
+      <td>{{ alert['threshold'] }}</td>
+      <td>
+        <form action="{{ url_for('alerts.delete_a', numerator=alert['numerator'], denominator=alert['denominator'], threshold=alert['threshold']) }}" method="post">
+          <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+{% endblock %}
