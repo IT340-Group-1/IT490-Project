@@ -21,3 +21,6 @@ def set_alert(username, numerator, denominator, threshold):
 
 def delete_alert(username, numerator, denominator, threshold):
     return call('delete_alert', username=username, numerator=numerator, denominator=denominator, threshold=threshold)
+
+def get_currency_rates(currencies):
+    return call('get_currency_rates', symbols=currencies)

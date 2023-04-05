@@ -5,7 +5,6 @@
 {% endblock %}
 
 {% block content %}
-  {% set currencies = ['USD', 'EUR', 'GBP', 'BTC', 'BAM', 'INR', 'AUD'] %}
   <form action="{{ url_for('alerts.set_a') }}" method="post">
     <label for="numerator">Numerator Currency</label>
     <select name="numerator" id="numerator">
@@ -27,7 +26,8 @@
     <tr>
       <th>Numerator Currency</th>
       <th>Denominator Currency</th>
-      <th>threshold</th>
+      <th>Threshold</th>
+      <th>Current Ratio</th>
       <th></th>
     </tr>
     {% for alert in alerts %}
@@ -35,6 +35,7 @@
       <td>{{ alert['numerator'] }}</td>
       <td>{{ alert['denominator'] }}</td>
       <td>{{ alert['threshold'] }}</td>
+      <td>{{ '{:.6f}'.format(rates[alert['denominator']] / rates[alert['numerator']]) }}</td>
       <td>
         <form action="{{ url_for('alerts.delete_a', numerator=alert['numerator'], denominator=alert['denominator'], threshold=alert['threshold']) }}" method="post">
           <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">

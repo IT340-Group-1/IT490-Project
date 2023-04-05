@@ -5,7 +5,7 @@ from flask import (
 from werkzeug.exceptions import abort
 
 from .auth import login_required
-from .fermq import get_alerts, set_alert, delete_alert
+from .fermq import get_alerts, set_alert, delete_alert, get_currency_rates
 
 bp = Blueprint('alerts', __name__)
 
@@ -15,8 +15,13 @@ def index():
     if username is None:
         return render_template('index.html')
     else:
+        currencies = ['USD', 'EUR', 'GBP', 'BTC', 'BAM', 'INR', 'AUD']
+        currency_rates = session.get('currencyrates')
+        if currency_rates is None:
+            currency_rates = get_currency_rates(currencies)['current']
+            session['currencyrates'] = currency_rates
         user_alerts = get_alerts(username)
-        return render_template('alerts/index.html', alerts=user_alerts)
+        return render_template('alerts/index.html', currencies=currencies, rates=currency_rates, alerts=user_alerts)
 
 @bp.route('/set', methods=('POST',))
 @login_required
