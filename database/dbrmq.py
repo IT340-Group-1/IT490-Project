@@ -5,7 +5,7 @@ from rmqrpc import listen
 
 db_host = 'localhost'
 db_user = 'craapp'
-db_password = 'password'
+db_password = 'DBPa55w0rd'
 
 cradb = mysql.connector.connect(
     host=db_host, user=db_user, password=db_password)
