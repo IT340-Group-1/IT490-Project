@@ -3,6 +3,7 @@ import os
 from flask import Flask, render_template
 
 from . import auth
+from . import alerts
 
 
 def create_app(test_config=None):
@@ -21,10 +22,9 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    @app.route('/')
-    def index():
-        return render_template('index.html')
-
     app.register_blueprint(auth.bp)
+    app.register_blueprint(alerts.bp)
+
+    app.add_url_rule('/', endpoint='index')
     
     return app
