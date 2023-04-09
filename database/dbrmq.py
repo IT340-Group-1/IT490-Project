@@ -37,7 +37,7 @@ def get_users(r):
     return execute(cradb, sql)
 
 def register_user(r):
-    sql = '''INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s)'''
+    sql = '''REPLACE INTO users (username, email, password_hash) VALUES (%s, %s, %s)'''
     return execute(cradb, sql, r['username'], r['email'], r['password_hash'])
 
 def get_alerts(r):
