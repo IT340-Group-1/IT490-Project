@@ -3,7 +3,7 @@ import json
 from cradb import init_db
 from rmqrpc import listen
 
-db_host = 'cra-db-cluster1.cluster-crx3a0k4actg.us-east-1.rds.amazonaws.com'
+db_host = 'cra-db-cluster.cluster-cpunwwtgvvcf.us-east-1.rds.amazonaws.com'
 db_user = 'craapp'
 db_password = 'DBPa55w0rd'
 
