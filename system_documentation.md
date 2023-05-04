@@ -67,10 +67,31 @@ graph TD;
 ```
 
 ## Source Code
+The source code for the Currency Ratio Alerter (CRA) is available on our GitHub repository. You can access it at the following link:
 
-## Trobleshooting
+[Currency Ratio Alerter GitHub Repository](https://github.com/IT340-Group-1/IT490-Project)
+
+The repository is organized into separate folders for each subsystem (frontend, backend, database, and messaging). Within each subsystem folder, you'll find the necessary files, scripts, and configurations to run the respective subsystem. Be sure to read the README.md files in each folder for additional information and setup instructions.
+
+
+## General Trobleshooting
+1. Check the logs: Most issues can be diagnosed by checking the logs for each subsystem. Logs are stored in the `logs/` directory within each subsystem's folder.
+2. Verify that all services are running: Ensure that all EC2 instances are running and the messaging subsystem is functioning properly.
+3. Confirm proper configuration: Double-check your configuration files and environment variables to ensure they match the expected values.
 
 ## Glossary
+- CRA: Currency Ratio Alerter, the web application that monitors currency ratios and sends alerts.
+- API: Application Programming Interface, a set of rules that allow different software applications to communicate with each other.
+- AWS: Amazon Web Services, a cloud computing platform that provides various services like EC2, RDS, and messaging.
+- EC2: Amazon Elastic Compute Cloud, a web service that provides resizable compute capacity in the cloud.
+- RDS: Amazon Relational Database Service, a web service that makes it easier to set up, operate, and scale a relational database in the cloud.
+- RabbitMQ: An open-source message broker that implements the Advanced Message Queuing Protocol (AMQP).
+- Gunicorn: A Python Web Server Gateway Interface (WSGI) HTTP server, used to serve the frontend CRA application.
+- WSGI: Web Server Gateway Interface, a standard interface between web servers and Python web applications or frameworks.
+- SMTP: Simple Mail Transfer Protocol, a communication protocol used for sending email messages over the internet.
+- SSH: Secure Shell, a cryptographic network protocol used for secure communication over an unsecured network.
+- SQL: Structured Query Language, a programming language used to communicate with and manipulate databases.
+- Crontab: A Unix-based utility that allows you to schedule tasks to run automatically at specified intervals.
 
 ## Architecture Improvements
 If we were designing a system like this outside of a college course, we would rely on [AWS Serverless](https://aws.amazon.com/serverless/) architecture, and used services like SQS instead of RabbitMQ, Lambda instead of EC2, and DynamoDB instead of MySQL. This would make the system almost infinitely (and effortlessly) scalable both up (if we had millions of users) and down (to $0 if we had no users). We would also use [AWS CDK](https://aws.amazon.com/cdk/) instead of AWS CLI.
